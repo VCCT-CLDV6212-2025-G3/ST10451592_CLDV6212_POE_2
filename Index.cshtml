@@ -1,9 +1,30 @@
-﻿@{
-    ViewData["Title"] = "Queue Management";
+﻿@* File: Views/Products/Index.cshtml *@
+@{
+    ViewData["Title"] = "Products";
 }
 
 <div class="container mt-4">
-    <h1 class="mb-4">Order Processing Queue</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Product Catalog</h1>
+        <a asp-controller="Products" asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add New Product
+        </a>
+    </div>
+
+    @* FIX: SEARCH FORM IMPLEMENTATION (Kept as previously fixed) *@
+    <div class="mb-4">
+        <form asp-controller="Products" asp-action="Index" method="get" class="d-flex">
+            <input type="search" name="searchQuery" class="form-control me-2"
+                   placeholder="Search by name, description, or category..."
+                   value="@ViewBag.CurrentSearchQuery" aria-label="Search">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+
+            @if (!string.IsNullOrEmpty(ViewBag.CurrentSearchQuery))
+            {
+                <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary ms-2">Clear Filter</a>
+            }
+        </form>
+    </div>
 
     @if (TempData["SuccessMessage"] != null)
     {
@@ -13,113 +34,119 @@
         </div>
     }
 
-    @if (TempData["ErrorMessage"] != null)
+    @* FIX: RESTORED PRODUCT CARD RENDERING LOGIC *@
+    @if (ViewBag.Products != null && ViewBag.Products.Count > 0)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="row">
+            @foreach (var product in ViewBag.Products)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="position-relative">
+                            @* Image Logic Restoration: Display ImageUrl if available, otherwise display a placeholder *@
+                            @if (!string.IsNullOrEmpty(product.ImageUrl))
+                            {
+                                <img src="@product.ImageUrl"
+                                     class="card-img-top"
+                                     alt="@product.Name"
+                                     style="height: 250px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center"
+                                     style="height: 250px;">
+                                    <i class="bi bi-image text-white" style="font-size: 4rem;"></i>
+                                </div>
+                            }
+                            <span class="badge bg-primary position-absolute top-0 end-0 m-2">
+                                @product.Category
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@product.Name</h5>
+                            @* Ensure Description is correctly displayed, handling dynamic properties *@
+                            <p class="card-text text-muted small">@product.Description</p>
+                            <p class="card-text">
+                                @* Ensure Price is formatted correctly *@
+                                <strong class="text-primary" style="font-size: 1.5rem;">R @(((double)product.Price).ToString("N2"))</strong>
+                            </p>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <div class="btn-group w-100" role="group">
+                                @* Use product.RowKey for the unique ID in routing *@
+                                <a asp-controller="Products" asp-action="Details" asp-route-id="@product.RowKey"
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.RowKey"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                                <a asp-controller="Products" asp-action="Delete" asp-route-id="@product.RowKey"
+                                   class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @* Pagination (Kept as previously fixed, ensuring search query is maintained) *@
+        @if (ViewBag.TotalProducts > 5)
+        {
+            <nav aria-label="Product pagination">
+                <ul class="pagination justify-content-center">
+                    @{
+                        var totalPages = (int)Math.Ceiling((double)ViewBag.TotalProducts / 5);
+                    }
+
+                    <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-controller="Products"
+                           asp-action="Index"
+                           asp-route-page="@(ViewBag.CurrentPage - 1)"
+                           asp-route-searchQuery="@ViewBag.CurrentSearchQuery">Previous</a>
+                    </li>
+
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link"
+                               asp-controller="Products"
+                               asp-action="Index"
+                               asp-route-page="@i"
+                               asp-route-searchQuery="@ViewBag.CurrentSearchQuery">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(ViewBag.CurrentPage == totalPages ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-controller="Products"
+                           asp-action="Index"
+                           asp-route-page="@(ViewBag.CurrentPage + 1)"
+                           asp-route-searchQuery="@ViewBag.CurrentSearchQuery">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    }
+    else if (!string.IsNullOrEmpty(ViewBag.CurrentSearchQuery))
+    {
+        <div class="alert alert-warning">
+            <h4 class="alert-heading">No Matches Found</h4>
+            <p>Your search for "<strong>@ViewBag.CurrentSearchQuery</strong>" returned no products.</p>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-sm btn-warning">View All Products</a>
         </div>
     }
-
-    <div class="card mb-4">
-        <div class="card-header bg-success text-white">
-            <h5 class="mb-0">Add New Order to Queue</h5>
+    else
+    {
+        <div class="alert alert-info">
+            <h4 class="alert-heading">No Products Yet!</h4>
+            <p>Start building your catalog by adding your first product.</p>
+            <hr>
+            <a asp-controller="Products" asp-action="Create" class="btn btn-primary">Add Your First Product</a>
         </div>
-        <div class="card-body">
-            <form asp-controller="QueueManagement" asp-action="AddQueueMessage" method="post">
-                <div class="mb-3">
-                    <label class="form-label">Order/Processing Message</label>
-                    <input type="text" name="message" class="form-control"
-                           placeholder="e.g., Processing order #12345" required>
-                    <small class="form-text text-muted">
-                        Enter order processing details, inventory updates, or transaction information
-                    </small>
-                </div>
-                <button type="submit" class="btn btn-success">Add to Queue</button>
-            </form>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Queue Messages (@ViewBag.TotalMessages total)</h5>
-        </div>
-        <div class="card-body">
-            @if (ViewBag.QueueMessages != null && ViewBag.QueueMessages.Count > 0)
-            {
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th width="5%">#</th>
-                                <th width="50%">Message</th>
-                                <th width="15%">Status</th>                              
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @{
-                                int index = ((ViewBag.CurrentPage - 1) * 5) + 1;
-                            }
-                            @foreach (var message in ViewBag.QueueMessages)
-                            {
-                                <tr>
-                                    <td>@index</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <span class="badge bg-secondary me-2">Queue</span>
-                                            @message.MessageText
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-warning text-dark">Pending</span>
-                                    </td>                                  
-                                </tr>
-                                index++;
-                            }
-                        </tbody>
-                    </table>
-                </div>
-
-                @if (ViewBag.TotalMessages > 5)
-                {
-                    <nav aria-label="Queue pagination">
-                        <ul class="pagination justify-content-center mb-0">
-                            @{
-                                var totalPages = (int)Math.Ceiling((double)ViewBag.TotalMessages / 5);
-                            }
-
-                            <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                                <a class="page-link" asp-controller="QueueManagement" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)">Previous</a>
-                            </li>
-
-                            @for (int i = 1; i <= totalPages; i++)
-                            {
-                                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                                    <a class="page-link" asp-controller="QueueManagement" asp-action="Index" asp-route-page="@i">@i</a>
-                                </li>
-                            }
-
-                            <li class="page-item @(ViewBag.CurrentPage == totalPages ? "disabled" : "")">
-                                <a class="page-link" asp-controller="QueueManagement" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
-                }
-            }
-            else
-            {
-                <div class="alert alert-info mb-0">
-                    <h5 class="alert-heading">Queue is Empty</h5>
-                    <p class="mb-0">No messages in the queue. Add order processing messages using the form above.</p>
-                </div>
-            }
-        </div>
-    </div>
-
-    <div class="mt-3">
-        <small class="text-muted">
-            <strong>Note:</strong> This queue stores order processing and inventory management transactions.
-            Messages are processed in First-In-First-Out (FIFO) order.
-        </small>
-    </div>
+    }
 </div>

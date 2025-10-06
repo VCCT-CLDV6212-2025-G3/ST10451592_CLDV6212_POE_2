@@ -1,0 +1,70 @@
+﻿@model ABCRetailWebApp.Models.Product
+@{
+    ViewData["Title"] = "Product Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h2>Product Details</h2>
+        <hr />
+
+        <div class="mb-4">
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="@Model.ImageUrl"
+                     class="img-fluid rounded shadow-sm"
+                     alt="@Model.Name"
+                     style="max-height: 400px; object-fit: cover;">
+            }
+            else
+            {
+                <div class="bg-secondary rounded d-flex align-items-center justify-content-center p-5"
+                     style="height: 300px;">
+                    <i class="bi bi-image text-white" style="font-size: 4rem;"></i>
+                </div>
+            }
+        </div>
+
+        <dl class="row">
+            <dt class="col-sm-2">Product ID</dt>
+            <dd class="col-sm-10">@Model.RowKey</dd>
+
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@Model.Name</dd>
+
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@Model.Description</dd>
+
+            <dt class="col-sm-2">Price</dt>
+            <dd class="col-sm-10">R @Model.Price.ToString("N2")</dd>
+
+            <dt class="col-sm-2">Category</dt>
+            <dd class="col-sm-10">@Model.Category</dd>
+
+            <dt class="col-sm-2">Image URL</dt>
+            <dd class="col-sm-10 text-break">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <a href="@Model.ImageUrl" target="_blank">View Image</a>
+                }
+                else
+                {
+                    <span>(None provided)</span>
+                }
+            </dd>
+        </dl>
+
+        <div class="mt-4">
+            <a href="@Url.Action("Edit", "Products", new { id = Model.RowKey })" class="btn btn-warning me-2">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a href="@Url.Action("Delete", "Products", new { id = Model.RowKey })" class="btn btn-danger me-2">
+                <i class="bi bi-trash"></i> Delete
+            </a>
+            <a href="@Url.Action("Index", "Products")" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+</div>
