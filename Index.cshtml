@@ -1,86 +1,103 @@
-﻿@{
-    ViewData["Title"] = "Product Images";
+﻿<!-- File: Views/Customers/Index.cshtml -->
+@{
+    ViewData["Title"] = "Customers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
-    <h1 class="mb-4">Product Image Gallery</h1>
-
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    <!-- Upload Form -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0">Upload Product Image</h5>
-        </div>
-        <div class="card-body">
-            <form asp-controller="ProductDetails" asp-action="UploadImage" method="post" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label class="form-label">Select Image File</label>
-                    <input type="file" name="file" class="form-control" accept="image/*" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Upload Image</button>
-            </form>
-        </div>
+<div class="row g-4">
+    <!-- Alerts -->
+    <div class="col-12 text-center mb-4">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
     </div>
 
-    <!-- Image Gallery -->
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">Uploaded Images (@ViewBag.TotalBlobs total)</h5>
-        </div>
-        <div class="card-body">
-            @if (ViewBag.BlobNames != null && ViewBag.BlobNames.Count > 0)
-            {
-                <div class="row">
-                    @foreach (var blobName in ViewBag.BlobNames)
-                    {
-                        <div class="col-md-4 mb-4">
-                            <div class="card h-100">
-                                <img src="https://st10451592.blob.core.windows.net/productimages/@blobName"
-                                     class="card-img-top"
-                                     alt="@blobName"
-                                     style="height: 250px; object-fit: cover;">
-                                <div class="card-body">
-                                    <p class="card-text small text-muted">@blobName</p>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
+    <!-- Link to Create New Customer -->
+    <div class="col-12">
+        <a href="@Url.Action("Create", "Customers")" class="btn btn-primary mb-3">Add New Customer</a>
+    </div>
 
-                <!-- Pagination -->
-                @if (ViewBag.TotalBlobs > 5)
+    <!-- Customers List -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">Customers (Table Storage)</div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Phone Number</th>
+                            <th>Address</th>
+                            <th>Created Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var customer in ViewBag.Customers as List<Customer>)
+                        {
+                            <tr>
+                                <td>@customer.FirstName</td>
+                                <td>@customer.LastName</td>
+                                <td>@customer.Email</td>
+                                <td>@customer.PhoneNumber</td>
+                                <td>@customer.Address</td>
+                                <td>@customer.CreatedDate</td>
+                                <td>
+                                    <a href="@Url.Action("Details", "Customers", new { id = customer.RowKey })" class="btn btn-info btn-sm">View</a>
+                                    <a href="@Url.Action("Edit", "Customers", new { id = customer.RowKey })" class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="@Url.Action("Delete", "Customers", new { id = customer.RowKey })" class="btn btn-danger btn-sm">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @if (ViewBag.TotalCustomers > 5)
                 {
                     <nav aria-label="Page navigation">
-                        <ul class="pagination justify-content-center">
-                            @for (int i = 1; i <= Math.Ceiling((double)ViewBag.TotalBlobs / 5); i++)
+                        <ul class="pagination justify-content-center mt-2">
+                            @for (int i = 1; i <= (int)Math.Ceiling((double)ViewBag.TotalCustomers / 5); i++)
                             {
                                 <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                                    <a class="page-link" asp-controller="ProductDetails" asp-action="Index" asp-route-page="@i">@i</a>
+                                    <a class="page-link" href="?page=@i">@i</a>
                                 </li>
                             }
                         </ul>
                     </nav>
                 }
-            }
-            else
-            {
-                <p class="text-muted">No images uploaded yet. Upload your first product image above!</p>
-            }
+            </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <!-- Bootstrap validation -->
+    <script>
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}

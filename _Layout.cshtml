@@ -1,0 +1,117 @@
+﻿<!-- File: Views/Shared/_Layout.cshtml -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ABC Retail Web App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .navbar {
+            background-color: #1a3c70;
+        }
+
+        .navbar-brand, .navbar-nav .nav-link {
+            color: #ffffff !important;
+        }
+
+            .navbar-brand img {
+                height: 40px;
+                margin-right: 10px;
+            }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            transition: transform 0.2s;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+        .card-header {
+            background-color: #1a3c70;
+            color: #ffffff;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .btn-primary {
+            background-color: #1a3c70;
+            border-color: #1a3c70;
+        }
+
+            .btn-primary:hover {
+                background-color: #142f57;
+                border-color: #142f57;
+            }
+
+        .alert {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <img src="https://st10451592.blob.core.windows.net/productimages/ABC%20Retail%20image.png" alt="ABC Retail Logo" class="img-fluid">
+                    ABC Retail
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Products">Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/ProductDetails">Product Image Gallery</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Customers">Customers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/QueueManagement">Queue Management</a>
+                        </li>                
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="FunctionTest" asp-action="Index">Test Functions</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/FileManagement">File Management</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="text-center py-3" style="background-color: #1a3c70; color: #ffffff;">
+        <p>&copy; 2025 - ABC Retail Web App - <a href="/Privacy" style="color: #ffffff;">Privacy</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
