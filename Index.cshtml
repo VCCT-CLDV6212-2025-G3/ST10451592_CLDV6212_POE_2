@@ -1,0 +1,125 @@
+﻿@{
+    ViewData["Title"] = "Queue Management";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Order Processing Queue</h1>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Add New Order to Queue</h5>
+        </div>
+        <div class="card-body">
+            <form asp-controller="QueueManagement" asp-action="AddQueueMessage" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Order/Processing Message</label>
+                    <input type="text" name="message" class="form-control"
+                           placeholder="e.g., Processing order #12345" required>
+                    <small class="form-text text-muted">
+                        Enter order processing details, inventory updates, or transaction information
+                    </small>
+                </div>
+                <button type="submit" class="btn btn-success">Add to Queue</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Queue Messages (@ViewBag.TotalMessages total)</h5>
+        </div>
+        <div class="card-body">
+            @if (ViewBag.QueueMessages != null && ViewBag.QueueMessages.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="50%">Message</th>
+                                <th width="15%">Status</th>                              
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int index = ((ViewBag.CurrentPage - 1) * 5) + 1;
+                            }
+                            @foreach (var message in ViewBag.QueueMessages)
+                            {
+                                <tr>
+                                    <td>@index</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-secondary me-2">Queue</span>
+                                            @message.MessageText
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    </td>                                  
+                                </tr>
+                                index++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (ViewBag.TotalMessages > 5)
+                {
+                    <nav aria-label="Queue pagination">
+                        <ul class="pagination justify-content-center mb-0">
+                            @{
+                                var totalPages = (int)Math.Ceiling((double)ViewBag.TotalMessages / 5);
+                            }
+
+                            <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" asp-controller="QueueManagement" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)">Previous</a>
+                            </li>
+
+                            @for (int i = 1; i <= totalPages; i++)
+                            {
+                                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    <a class="page-link" asp-controller="QueueManagement" asp-action="Index" asp-route-page="@i">@i</a>
+                                </li>
+                            }
+
+                            <li class="page-item @(ViewBag.CurrentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link" asp-controller="QueueManagement" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info mb-0">
+                    <h5 class="alert-heading">Queue is Empty</h5>
+                    <p class="mb-0">No messages in the queue. Add order processing messages using the form above.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <small class="text-muted">
+            <strong>Note:</strong> This queue stores order processing and inventory management transactions.
+            Messages are processed in First-In-First-Out (FIFO) order.
+        </small>
+    </div>
+</div>
