@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Product Image Gallery";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Product Details: @ViewBag.Product.Name (ID: @ViewBag.Product.Id)</h2>
+<div class="row">
+    <div class="col-md-12">
+        @if (ViewBag.Product.ImageUrls != null && ViewBag.Product.ImageUrls.Any())
+        {
+            foreach (var imageUrl in ViewBag.Product.ImageUrls)
+            {
+                <img src="@imageUrl" alt="@ViewBag.Product.Name" style="max-width: 300px; margin: 10px;" />
+            }
+        }
+        else
+        {
+            <p>No images available for this product.</p>
+        }
+    </div>
+</div>
