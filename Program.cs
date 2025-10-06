@@ -1,8 +1,44 @@
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Hosting;
+using ABCRetailWebApp.Services;
 
-var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
-    .Build();
+namespace ABCRetailWebApp
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
 
-await host.RunAsync();
+            // Add services to the container.
+            builder.Services.AddControllersWithViews();
+
+            // Register HttpClientFactory
+            builder.Services.AddHttpClient();
+
+            builder.Services.AddSingleton<AzureStorageService>();
+
+            builder.Services.AddScoped<AzureFunctionService>();
+
+            var app = builder.Build();
+
+            // Configure the HTTP request pipeline.
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/Home/Error");
+                app.UseHsts();
+            }
+
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            app.Run();
+        }
+    }
+}
